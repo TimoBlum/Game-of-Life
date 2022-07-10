@@ -16,6 +16,7 @@ class Tile:
         self.y = y
         self.alive = False
         self.rect = pygame.Rect(self.x, self.y, 10, 10)
+        self.nextstate = None
 
     def draw(self):
         if self.alive:
@@ -25,14 +26,15 @@ class Tile:
 
     def life(self):
         n = len(findNeighbours(self.x, self.y))
-        if not self.alive:
-            if n == 3:
-                self.alive = True
-                print("one got revived")
-        if self.alive:
-            if not n == 2 and not n == 3:
-                self.alive = False
-                print("one died, Population = ", n)
+        if n == 3:
+            self.nextstate = True
+            print("one got revived")
+        if not n == 2 and not n == 3:
+            self.nextstate = False
+            print("one died, Population = ", n)
+
+    def update(self):
+        self.alive = self.nextstate
 
 
 def makeGrid():
@@ -87,13 +89,16 @@ def redrawWin():
         tile.draw()
         if started:
             tile.life()
+    for tile in tiles:
+        if started:
+            tile.update()
     pygame.display.update()
 
 
 def main():
     global run, started
     while run:
-        clock.tick(30)
+        clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
